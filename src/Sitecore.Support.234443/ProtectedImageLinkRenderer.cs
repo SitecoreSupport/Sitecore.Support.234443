@@ -112,34 +112,47 @@
             }
         }
 
+        #region Fixed version
+
         private string ReplaceReference(string tagHtml, string urlAttribute)
         {
             Assert.ArgumentNotNull(tagHtml, "tagHtml");
             Assert.ArgumentNotNull(urlAttribute, "urlAttribute");
             bool flag = true;
             string str = tagHtml;
-            if (tagHtml.Contains("&amp;"))
-            {
-                str = str.Replace("&amp;", "&");
-            }
-            else if (tagHtml.Contains("&"))
-            {
-                flag = false;
-            }
+
             int startIndex = str.IndexOf(urlAttribute, StringComparison.OrdinalIgnoreCase) + 3;
             startIndex = str.IndexOfAny(this.quotes, startIndex) + 1;
             int num2 = str.IndexOfAny(this.quotes, startIndex);
             string url = str.Substring(startIndex, num2 - startIndex);
+
+            // We encode and decode the ampersand (&) for the src (url) attribute. 
+            // The Alt attribute is no longer decoded.
+
             if (!url.Contains("?"))
             {
                 return tagHtml;
             }
+
+            if (url.Contains("&amp;"))
+            {
+                url = url.Replace("&amp;", "&");
+            }
+            else if (url.Contains("&"))
+            {
+                flag = false;
+            }
+
             url = this.GetProtectedUrl(url);
+
             if (flag)
             {
                 url = url.Replace("&", "&amp;");
             }
-            return (str.Substring(0, startIndex) + url + str.Substring(num2, str.Length - num2));
+    
+            return str.Substring(0, startIndex) + url + str.Substring(num2, str.Length - num2);
         }
+
+        #endregion
     }
 }
